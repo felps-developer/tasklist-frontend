@@ -31,25 +31,55 @@ export const useAuthStore = defineStore('auth', () => {
         email: data.email,
         password: data.password,
       })
-      await setAuth(loginResponse, { name: data.name, email: data.email, id: '' })
+      // Usar os dados do usuário da resposta (o backend agora retorna isso)
+      if (loginResponse.user) {
+        await setAuth(loginResponse, loginResponse.user)
+      } else {
+        // Fallback: usar dados do registro
+        await setAuth(loginResponse, { id: '', name: data.name, email: data.email })
+      }
       return loginResponse
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Erro ao registrar usuário')
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && 'response' in error
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+          : 'Erro ao registrar usuário'
+      throw new Error(errorMessage || 'Erro ao registrar usuário')
     }
   }
 
   async function login(data: LoginRequest) {
     try {
       const response = await authService.login(data)
-      // Buscar dados do usuário do token ou fazer uma requisição adicional
-      await setAuth(response, { name: '', email: data.email, id: '' })
+      // Salvar o token primeiro
+      accessToken.value = response.accessToken
+      refreshToken.value = response.refreshToken
+      localStorage.setItem('accessToken', response.accessToken)
+      localStorage.setItem('refreshToken', response.refreshToken)
+
+      // Usar os dados do usuário da resposta (o backend agora retorna isso)
+      if (response.user) {
+        user.value = response.user
+        localStorage.setItem('user', JSON.stringify(response.user))
+      } else {
+        // Fallback: usar dados básicos do email (não chamar /me para evitar erro)
+        user.value = { id: '', name: data.email.split('@')[0] || data.email, email: data.email }
+        localStorage.setItem('user', JSON.stringify(user.value))
+      }
       return response
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Credenciais inválidas')
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && 'response' in error
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+          : 'Credenciais inválidas'
+      throw new Error(errorMessage || 'Credenciais inválidas')
     }
   }
 
-  async function setAuth(authResponse: any, userData: User) {
+  async function setAuth(
+    authResponse: { accessToken: string; refreshToken: string },
+    userData: User,
+  ) {
     accessToken.value = authResponse.accessToken
     refreshToken.value = authResponse.refreshToken
     user.value = userData
@@ -83,4 +113,3 @@ export const useAuthStore = defineStore('auth', () => {
     loadFromStorage,
   }
 })
-

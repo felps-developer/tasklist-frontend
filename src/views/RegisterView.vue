@@ -1,11 +1,9 @@
 <template>
-  <v-container fluid class="fill-height">
-    <v-row align="center" justify="center">
-      <v-col cols="12" sm="8" md="6" lg="4">
-        <v-card>
-          <v-card-title class="text-h5 text-center pa-6">
-            Cadastro
-          </v-card-title>
+  <v-container fluid class="fill-height pa-0">
+    <v-row align="center" justify="center" class="fill-height ma-0">
+      <v-col cols="12" sm="10" md="8" lg="6" xl="4" class="pa-4">
+        <v-card class="mx-auto" max-width="500">
+          <v-card-title class="text-h5 text-center pa-6"> Cadastro </v-card-title>
           <v-card-text>
             <v-form @submit.prevent="handleRegister">
               <v-text-field
@@ -43,13 +41,7 @@
                 required
                 class="mb-4"
               />
-              <v-alert
-                v-if="error"
-                type="error"
-                class="mb-4"
-                closable
-                @click:close="error = ''"
-              >
+              <v-alert v-if="error" type="error" class="mb-4" closable @click:close="error = ''">
                 {{ error }}
               </v-alert>
               <v-btn
@@ -78,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
@@ -123,11 +115,10 @@ async function handleRegister() {
       password: password.value,
     })
     router.push('/tasks')
-  } catch (err: any) {
-    error.value = err.message || 'Erro ao cadastrar usuário'
+  } catch (error) {
+    console.error(error)
   } finally {
     loading.value = false
   }
 }
 </script>
-

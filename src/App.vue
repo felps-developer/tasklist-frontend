@@ -8,8 +8,9 @@ import { RouterView } from 'vue-router'
   </v-app>
 </template>
 
-<style>
-#app {
+<style scoped>
+:deep(.v-application) {
+  width: 100%;
   min-height: 100vh;
 }
 </style>
