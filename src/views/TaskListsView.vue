@@ -1,117 +1,71 @@
 <template>
-  <v-container fluid class="pa-4">
-    <v-row>
-      <v-col cols="12" md="10" lg="8" xl="6" class="mx-auto">
-        <v-card>
-          <TasksHeader
-            title="Minhas Listas de Tarefas"
-            :user-name="authStore.user?.name"
-            @logout="handleLogout"
-          />
-          <v-card-text class="pa-4">
-            <div class="d-flex justify-end mb-4">
-              <v-btn color="primary" prepend-icon="mdi-plus" @click="openListDialog" size="large">
-                Nova Lista
-              </v-btn>
-            </div>
+  <PageContainer>
+    <template #header>
+      <TasksHeader
+        title="Minhas Listas de Tarefas"
+        :user-name="authStore.user?.name"
+        @logout="handleLogout"
+      />
+    </template>
 
-            <v-text-field
-              v-model="searchName"
-              label="Buscar por nome"
-              prepend-inner-icon="mdi-magnify"
-              variant="outlined"
-              clearable
-              class="mb-4"
-              @update:model-value="handleSearch"
-              @click:clear="handleSearch"
-            />
+    <div class="d-flex justify-end mb-4">
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openListDialog" size="large">
+        Nova Lista
+      </v-btn>
+    </div>
 
-            <v-alert
-              v-if="taskListStore.error"
-              type="error"
-              class="mb-4"
-              closable
-              @click:close="taskListStore.clearError()"
-            >
-              {{ taskListStore.error }}
-            </v-alert>
+    <v-text-field
+      v-model="searchName"
+      label="Buscar por nome"
+      prepend-inner-icon="mdi-magnify"
+      variant="outlined"
+      clearable
+      class="mb-4"
+      @update:model-value="handleSearch"
+      @click:clear="handleSearch"
+    />
 
-            <v-progress-linear
-              v-if="taskListStore.loading"
-              indeterminate
-              color="primary"
-              class="mb-4"
-            />
+    <v-alert
+      v-if="taskListStore.error"
+      type="error"
+      class="mb-4"
+      closable
+      @click:close="taskListStore.clearError()"
+    >
+      {{ taskListStore.error }}
+    </v-alert>
 
-            <v-list
-              v-if="!taskListStore.loading && taskListStore.taskLists.length > 0"
-              class="pa-0"
-            >
-              <v-list-item
-                v-for="list in taskListStore.taskLists"
-                :key="list.id"
-                class="mb-2 border rounded"
-                @click="goToTasks(list.id)"
-                style="cursor: pointer"
-              >
-                <template v-slot:prepend>
-                  <v-icon color="primary" size="large">mdi-format-list-bulleted</v-icon>
-                </template>
-                <v-list-item-title class="text-wrap">
-                  {{ list.name }}
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  Criada em {{ formatDate(list.createdAt) }}
-                </v-list-item-subtitle>
-                <template v-slot:append>
-                  <div class="d-flex">
-                    <v-btn
-                      icon="mdi-pencil"
-                      variant="text"
-                      size="small"
-                      @click.stop="openListDialog(list)"
-                      class="mr-1"
-                    />
-                    <v-btn
-                      icon="mdi-delete"
-                      variant="text"
-                      size="small"
-                      color="error"
-                      @click.stop="openDeleteDialog(list)"
-                    />
-                  </div>
-                </template>
-              </v-list-item>
-            </v-list>
+    <v-progress-linear v-if="taskListStore.loading" indeterminate color="primary" class="mb-4" />
 
-            <v-alert
-              v-if="!taskListStore.loading && taskListStore.taskLists.length === 0"
-              type="info"
-            >
-              <span v-if="searchName">Nenhuma lista encontrada com o nome "{{ searchName }}".</span>
-              <span v-else>Nenhuma lista cadastrada. Clique em "Nova Lista" para começar.</span>
-            </v-alert>
+    <TaskListTable
+      v-if="!taskListStore.loading && taskListStore.taskLists.length > 0"
+      :task-lists="taskListStore.taskLists"
+      @item-click="goToTasks"
+      @edit="openListDialog"
+      @delete="openDeleteDialog"
+    />
 
-            <!-- Paginação -->
-            <div
-              v-if="
-                taskListStore.pagination &&
-                taskListStore.pagination.totalPages > 1 &&
-                !taskListStore.loading
-              "
-              class="d-flex justify-center mt-4"
-            >
-              <v-pagination
-                v-model="currentPage"
-                :length="taskListStore.pagination.totalPages"
-                :total-visible="7"
-                @update:model-value="handlePageChange"
-              />
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+    <v-alert v-if="!taskListStore.loading && taskListStore.taskLists.length === 0" type="info">
+      <span v-if="searchName">Nenhuma lista encontrada com o nome "{{ searchName }}".</span>
+      <span v-else>Nenhuma lista cadastrada. Clique em "Nova Lista" para começar.</span>
+    </v-alert>
+
+    <!-- Paginação -->
+    <div
+      v-if="
+        taskListStore.pagination &&
+        taskListStore.pagination.totalPages > 1 &&
+        !taskListStore.loading
+      "
+      class="d-flex justify-center mt-4"
+    >
+      <v-pagination
+        v-model="currentPage"
+        :length="taskListStore.pagination.totalPages"
+        :total-visible="7"
+        @update:model-value="handlePageChange"
+      />
+    </div>
 
     <!-- Dialog para criar/editar lista -->
     <TaskListRegisterDialog
@@ -129,7 +83,7 @@
       @confirm="confirmDelete"
       @cancel="cancelDelete"
     />
-  </v-container>
+  </PageContainer>
 </template>
 
 <script setup lang="ts">
@@ -137,7 +91,9 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useTaskListStore } from '../stores/taskLists'
+import PageContainer from '@/components/PageContainer.vue'
 import TasksHeader from '@/components/TasksHeader.vue'
+import TaskListTable from '@/components/TaskListTable.vue'
 import TaskListRegisterDialog from '@/components/TaskListRegisterDialog.vue'
 import DeleteTaskListDialog from '@/components/DeleteTaskListDialog.vue'
 import type { TaskList } from '../types/taskList'
@@ -228,14 +184,5 @@ async function confirmDelete() {
 function handleLogout() {
   authStore.logout()
   router.push('/login')
-}
-
-function formatDate(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date
-  return d.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
 }
 </script>

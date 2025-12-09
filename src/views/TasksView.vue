@@ -1,149 +1,73 @@
 <template>
-  <v-container fluid class="pa-4">
-    <v-row>
-      <v-col cols="12" md="10" lg="8" xl="6" class="mx-auto">
-        <v-card>
-          <TasksHeader
-            :title="listTitle"
-            :user-name="authStore.user?.name"
-            @logout="handleLogout"
-          />
-          <v-card-text class="pa-4">
-            <div class="d-flex justify-space-between align-center mb-4">
-              <v-btn
-                color="secondary"
-                prepend-icon="mdi-arrow-left"
-                @click="goBack"
-                variant="outlined"
-                size="large"
-              >
-                Voltar
-              </v-btn>
-              <v-btn color="primary" prepend-icon="mdi-plus" @click="openTaskDialog" size="large">
-                Nova Tarefa
-              </v-btn>
-            </div>
+  <PageContainer>
+    <template #header>
+      <TasksHeader :title="listTitle" :user-name="authStore.user?.name" @logout="handleLogout" />
+    </template>
 
-            <v-text-field
-              v-model="searchTitle"
-              label="Buscar por título"
-              prepend-inner-icon="mdi-magnify"
-              variant="outlined"
-              clearable
-              class="mb-4"
-              @update:model-value="handleSearch"
-              @click:clear="handleSearch"
-            />
+    <div class="d-flex justify-space-between align-center mb-4">
+      <v-btn
+        color="secondary"
+        prepend-icon="mdi-arrow-left"
+        @click="goBack"
+        variant="outlined"
+        size="large"
+      >
+        Voltar
+      </v-btn>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openTaskDialog" size="large">
+        Nova Tarefa
+      </v-btn>
+    </div>
 
-            <v-alert
-              v-if="taskStore.error"
-              type="error"
-              class="mb-4"
-              closable
-              @click:close="taskStore.clearError()"
-            >
-              {{ taskStore.error }}
-            </v-alert>
+    <v-text-field
+      v-model="searchTitle"
+      label="Buscar por título"
+      prepend-inner-icon="mdi-magnify"
+      variant="outlined"
+      clearable
+      class="mb-4"
+      @update:model-value="handleSearch"
+      @click:clear="handleSearch"
+    />
 
-            <v-progress-linear
-              v-if="taskStore.loading"
-              indeterminate
-              color="primary"
-              class="mb-4"
-            />
+    <v-alert
+      v-if="taskStore.error"
+      type="error"
+      class="mb-4"
+      closable
+      @click:close="taskStore.clearError()"
+    >
+      {{ taskStore.error }}
+    </v-alert>
 
-            <div v-if="!taskStore.loading && taskStore.tasks.length > 0" class="pa-0">
-              <v-card
-                v-for="task in taskStore.tasks"
-                :key="task.id"
-                class="mb-2"
-                variant="outlined"
-              >
-                <v-card-text class="pa-3">
-                  <div class="d-flex align-center">
-                    <v-checkbox
-                      :model-value="task.completed"
-                      @update:model-value="toggleTask(task)"
-                      color="primary"
-                      class="ma-0 mr-3"
-                      density="compact"
-                      hide-details
-                    />
-                    <v-row no-gutters class="flex-grow-1 align-center">
-                      <v-col cols="12" md="4" class="pr-md-2">
-                        <div
-                          :class="{ 'text-decoration-line-through': task.completed }"
-                          class="text-body-1 font-weight-medium"
-                        >
-                          {{ task.title }}
-                        </div>
-                      </v-col>
-                      <v-col cols="12" md="8" class="pl-md-2">
-                        <div v-if="task.description" class="text-body-2 text-medium-emphasis">
-                          <span v-if="!isDescriptionLong(task.description)">
-                            {{ task.description }}
-                          </span>
-                          <span v-else>
-                            {{ truncateDescription(task.description) }}
-                            <v-btn
-                              icon="mdi-eye"
-                              variant="text"
-                              size="x-small"
-                              @click="openDescriptionDialog(task.description)"
-                              class="ml-1"
-                              color="primary"
-                            />
-                          </span>
-                        </div>
-                        <div v-else class="text-body-2 text-grey-lighten-1">Sem descrição</div>
-                      </v-col>
-                    </v-row>
-                    <div class="d-flex align-center ml-3">
-                      <v-btn
-                        icon="mdi-pencil"
-                        variant="text"
-                        size="small"
-                        @click="openTaskDialog(task)"
-                        class="mr-1"
-                      />
-                      <v-btn
-                        icon="mdi-delete"
-                        variant="text"
-                        size="small"
-                        color="error"
-                        @click="openDeleteDialog(task)"
-                      />
-                    </div>
-                  </div>
-                </v-card-text>
-              </v-card>
-            </div>
+    <v-progress-linear v-if="taskStore.loading" indeterminate color="primary" class="mb-4" />
 
-            <v-alert v-if="!taskStore.loading && taskStore.tasks.length === 0" type="info">
-              <span v-if="searchTitle"
-                >Nenhuma tarefa encontrada com o título "{{ searchTitle }}".</span
-              >
-              <span v-else>Nenhuma tarefa cadastrada. Clique em "Nova Tarefa" para começar.</span>
-            </v-alert>
+    <TaskTable
+      v-if="!taskStore.loading && taskStore.tasks.length > 0"
+      :tasks="taskStore.tasks"
+      @toggle="toggleTask"
+      @edit="openTaskDialog"
+      @delete="openDeleteDialog"
+      @view-description="openDescriptionDialog"
+    />
 
-            <!-- Paginação -->
-            <div
-              v-if="
-                taskStore.pagination && taskStore.pagination.totalPages > 1 && !taskStore.loading
-              "
-              class="d-flex justify-center mt-4"
-            >
-              <v-pagination
-                v-model="currentPage"
-                :length="taskStore.pagination.totalPages"
-                :total-visible="7"
-                @update:model-value="handlePageChange"
-              />
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+    <v-alert v-if="!taskStore.loading && taskStore.tasks.length === 0" type="info">
+      <span v-if="searchTitle">Nenhuma tarefa encontrada com o título "{{ searchTitle }}".</span>
+      <span v-else>Nenhuma tarefa cadastrada. Clique em "Nova Tarefa" para começar.</span>
+    </v-alert>
+
+    <!-- Paginação -->
+    <div
+      v-if="taskStore.pagination && taskStore.pagination.totalPages > 1 && !taskStore.loading"
+      class="d-flex justify-center mt-4"
+    >
+      <v-pagination
+        v-model="currentPage"
+        :length="taskStore.pagination.totalPages"
+        :total-visible="7"
+        @update:model-value="handlePageChange"
+      />
+    </div>
 
     <!-- Dialog para criar/editar tarefa -->
     <TaskRegisterDialog
@@ -165,7 +89,7 @@
 
     <!-- Dialog para mostrar descrição completa -->
     <TaskDescriptionDialog v-model="showDescriptionDialog" :description="selectedDescription" />
-  </v-container>
+  </PageContainer>
 </template>
 
 <script setup lang="ts">
@@ -174,7 +98,9 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useTaskStore } from '../stores/tasks'
 import { useTaskListStore } from '../stores/taskLists'
+import PageContainer from '@/components/PageContainer.vue'
 import TasksHeader from '../components/TasksHeader.vue'
+import TaskTable from '@/components/TaskTable.vue'
 import TaskRegisterDialog from '../components/TaskRegisterDialog.vue'
 import DeleteTaskDialog from '../components/DeleteTaskDialog.vue'
 import TaskDescriptionDialog from '../components/TaskDescriptionDialog.vue'
@@ -306,15 +232,6 @@ async function confirmDelete() {
 function handleLogout() {
   authStore.logout()
   router.push('/login')
-}
-
-function isDescriptionLong(description: string): boolean {
-  return !!(description && description.length > 100)
-}
-
-function truncateDescription(description: string): string {
-  if (!description) return ''
-  return description.length > 100 ? description.substring(0, 100) + '...' : description
 }
 
 function openDescriptionDialog(description: string) {
