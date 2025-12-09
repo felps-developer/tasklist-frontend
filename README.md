@@ -1,7 +1,5 @@
 # Tasklist Frontend - Sistema TODO List Multi-usuário
 
-![Jtech Logo](http://www.jtech.com.br/wp-content/uploads/2015/06/logo.png)
-
 ## Visão Geral da Arquitetura
 
 Este projeto implementa uma aplicação frontend para gerenciamento de tarefas (TODO List) multi-usuário, desenvolvida com **Vue 3** e **TypeScript**, seguindo os princípios de **Arquitetura em Camadas** e **Component-Based Architecture**.
@@ -312,6 +310,9 @@ tasklist-frontend/
 │   ├── components/                  # Componentes Vue reutilizáveis
 │   │   ├── __tests__/               # Testes de componentes
 │   │   │   └── HelloWorld.spec.ts   # Teste exemplo
+│   │   ├── PageContainer.vue         # Container reutilizável para layout padrão de páginas
+│   │   ├── TaskTable.vue             # Tabela reutilizável para exibição de tarefas
+│   │   ├── TaskListTable.vue         # Tabela reutilizável para exibição de listas de tarefas
 │   │   ├── DeleteTaskDialog.vue     # Dialog de confirmação de exclusão de tarefa
 │   │   ├── DeleteTaskListDialog.vue # Dialog de confirmação de exclusão de lista
 │   │   ├── TaskDescriptionDialog.vue # Dialog de descrição de tarefa
@@ -379,12 +380,17 @@ tasklist-frontend/
 #### 2. **Components (UI Components)**
 
 - **Responsabilidade**: Componentes reutilizáveis de interface
-- **Componentes**: Dialogs, Headers, Forms, etc.
+- **Componentes**:
+  - **Layout**: `PageContainer` - Container padrão para páginas
+  - **Tabelas**: `TaskTable`, `TaskListTable` - Tabelas reutilizáveis para listagem
+  - **Dialogs**: `DeleteTaskDialog`, `DeleteTaskListDialog`, `TaskDescriptionDialog`, `TaskListRegisterDialog`, `TaskRegisterDialog`
+  - **Headers**: `TasksHeader` - Cabeçalho padrão das páginas
 - **Características**:
   - Componentes isolados e reutilizáveis
   - Props para comunicação com parent
   - Emits para comunicação com parent
   - Slots para conteúdo dinâmico
+  - **Refatoração**: Componentes de layout e tabelas foram extraídos para reutilização entre views
 
 #### 3. **Stores (State Management Layer)**
 
@@ -606,6 +612,27 @@ tasklist-frontend/
 
 **Estrutura**: `auth.ts`, `tasks.ts`, `taskLists.ts` - cada um gerencia seu próprio domínio.
 
+### 13. Componentização de Layout e Tabelas
+
+**Justificativa**:
+
+- **Reutilização**: Componentes de layout e tabelas podem ser reutilizados em múltiplas views
+- **Consistência**: Garante layout e comportamento consistente entre páginas
+- **Manutenibilidade**: Mudanças no layout ou tabelas são centralizadas
+- **DRY**: Evita duplicação de código entre views
+
+**Componentes Criados**:
+
+- **PageContainer**: Componente que encapsula o layout padrão (container, row, col, card) usado em todas as views principais
+- **TaskTable**: Componente reutilizável para exibir lista de tarefas com labels, checkbox, ações e truncamento de descrição
+- **TaskListTable**: Componente reutilizável para exibir lista de task lists com formatação de data e ações
+
+**Refatoração Realizada**:
+
+- `TaskListsView.vue` e `TasksView.vue` foram refatoradas para usar os novos componentes
+- Código mais limpo e focado na lógica de negócio
+- Labels "Título" e "Descrição" adicionados na tabela de tarefas para melhor UX
+
 ## Melhorias e Roadmap
 
 ### Curto Prazo
@@ -616,8 +643,8 @@ tasklist-frontend/
    - Atualização transparente do token
 
 2. **Expandir Testes Unitários**: Aumentar cobertura de testes
-   - Testes para todos os componentes restantes
-   - Testes para views
+   - Testes para todos os componentes restantes (PageContainer, TaskTable, TaskListTable)
+   - Testes para views refatoradas
    - Testes de integração
    - Cobertura mínima de 80%
 
@@ -640,6 +667,11 @@ tasklist-frontend/
    - Filtro por status (completa/pendente)
    - Busca por título/descrição
    - Filtros combinados
+
+7. **Melhorias de Componentização**: Expandir reutilização
+   - Extrair componentes comuns adicionais
+   - Criar composables para lógica compartilhada
+   - Padronizar padrões de componentes
 
 ### Médio Prazo
 
@@ -760,6 +792,47 @@ tasklist-frontend/
 - `npm run format` - Formata código com Prettier
 - `npm run type-check` - Verifica tipos TypeScript
 
+## Refatorações e Melhorias Recentes
+
+### Componentização de Layout e Tabelas
+
+O projeto passou por uma refatoração importante para melhorar a reutilização de código e consistência visual:
+
+#### Novos Componentes Criados
+
+1. **PageContainer.vue**
+   - Componente reutilizável que encapsula o layout padrão de páginas
+   - Inclui container, row, col e card com slots para header e conteúdo
+   - Usado em `TaskListsView` e `TasksView` para manter consistência visual
+   - Facilita manutenção e padronização do layout
+
+2. **TaskTable.vue**
+   - Componente reutilizável para exibição de lista de tarefas
+   - Inclui labels "Título" e "Descrição" para melhor UX
+   - Suporta checkbox para marcar como concluída
+   - Truncamento automático de descrições longas (>100 caracteres)
+   - Botões de ação (editar, deletar, ver descrição completa)
+   - Emite eventos para comunicação com a view pai
+
+3. **TaskListTable.vue**
+   - Componente reutilizável para exibição de lista de task lists
+   - Formatação automática de datas em português brasileiro
+   - Ícones e ações (editar, deletar, navegar)
+   - Emite eventos para comunicação com a view pai
+
+#### Benefícios da Refatoração
+
+- **Reutilização**: Componentes podem ser usados em múltiplas views
+- **Consistência**: Layout e comportamento uniformes entre páginas
+- **Manutenibilidade**: Mudanças centralizadas em componentes reutilizáveis
+- **Código Limpo**: Views focadas apenas na lógica de negócio
+- **DRY**: Eliminação de duplicação de código
+
+#### Views Refatoradas
+
+- `TaskListsView.vue`: Agora usa `PageContainer` e `TaskListTable`
+- `TasksView.vue`: Agora usa `PageContainer` e `TaskTable`
+
 ## Funcionalidades Implementadas
 
 ### Autenticação
@@ -799,6 +872,9 @@ tasklist-frontend/
 - ✅ Feedback visual de ações
 - ✅ Loading states
 - ✅ Tratamento de erros
+- ✅ Componentização de layout e tabelas para reutilização
+- ✅ Labels claros para campos (Título e Descrição)
+- ✅ Layout consistente entre páginas usando PageContainer
 
 ### Integração com Backend
 
