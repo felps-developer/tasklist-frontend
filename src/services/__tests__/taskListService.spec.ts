@@ -13,6 +13,7 @@ describe('TaskListService', () => {
   const mockTaskList: TaskList = {
     id: '1',
     name: 'Test List',
+    active: true,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -122,7 +123,7 @@ describe('TaskListService', () => {
 
       await taskListService.delete('1')
 
-      expect(apiService.delete).toHaveBeenCalledWith('/task-lists/1')
+      expect(apiService.delete).toHaveBeenCalledWith('/task-lists/1/soft')
     })
   })
 })

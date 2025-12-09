@@ -3,6 +3,7 @@ export interface Task {
   title: string
   description?: string
   completed: boolean
+  active: boolean
   taskListId?: string
   createdAt: string | Date
   updatedAt: string | Date

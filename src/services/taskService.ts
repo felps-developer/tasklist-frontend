@@ -51,7 +51,7 @@ export const taskService = {
     if (!id || id === 'undefined' || id.trim() === '') {
       throw new Error('ID da tarefa é obrigatório')
     }
-    await apiService.delete(`/tasks/${id}`)
+    await apiService.delete(`/tasks/${id}/soft`)
   },
 }
 

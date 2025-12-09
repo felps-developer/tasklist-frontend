@@ -15,6 +15,7 @@ describe('TaskService', () => {
     title: 'Test Task',
     description: 'Test Description',
     completed: false,
+    active: true,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -156,7 +157,7 @@ describe('TaskService', () => {
 
       await taskService.delete('1')
 
-      expect(apiService.delete).toHaveBeenCalledWith('/tasks/1')
+      expect(apiService.delete).toHaveBeenCalledWith('/tasks/1/soft')
     })
 
     it('deve lançar erro quando ID é inválido', async () => {

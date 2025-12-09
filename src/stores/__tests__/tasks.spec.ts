@@ -17,6 +17,7 @@ describe('TaskStore', () => {
     title: 'Test Task',
     description: 'Test Description',
     completed: false,
+    active: true,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -138,6 +139,7 @@ describe('TaskStore', () => {
         title: 'Updated Task',
         description: 'Test Description',
         completed: false,
+        active: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       }

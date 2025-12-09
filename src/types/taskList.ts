@@ -1,6 +1,7 @@
 export interface TaskList {
   id: string
   name: string
+  active: boolean
   createdAt: string | Date
   updatedAt: string | Date
 }

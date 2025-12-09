@@ -15,6 +15,7 @@ describe('TaskListStore', () => {
   const mockTaskList: TaskList = {
     id: '1',
     name: 'Test List',
+    active: true,
     createdAt: new Date(),
     updatedAt: new Date(),
   }

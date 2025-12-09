@@ -36,7 +36,7 @@ export const taskListService = {
   },
 
   async delete(id: string): Promise<void> {
-    await apiService.delete(`/task-lists/${id}`)
+    await apiService.delete(`/task-lists/${id}/soft`)
   },
 }
 
