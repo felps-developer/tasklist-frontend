@@ -4,12 +4,7 @@
       <v-card-title class="d-flex align-center pa-4">
         <span class="text-h5">{{ isEditing ? 'Editar Tarefa' : 'Nova Tarefa' }}</span>
         <v-spacer />
-        <v-btn
-          icon="mdi-close"
-          variant="text"
-          @click="handleClose"
-          :disabled="taskStore.loading"
-        />
+        <v-btn icon="mdi-close" variant="text" @click="handleClose" :disabled="taskStore.loading" />
       </v-card-title>
       <v-card-text class="pa-4">
         <v-alert
@@ -47,13 +42,7 @@
       </v-card-text>
       <v-card-actions class="pa-4">
         <v-spacer />
-        <v-btn
-          variant="text"
-          @click="handleClose"
-          :disabled="taskStore.loading"
-        >
-          Cancelar
-        </v-btn>
+        <v-btn variant="text" @click="handleClose" :disabled="taskStore.loading"> Cancelar </v-btn>
         <v-btn
           color="primary"
           @click="saveTask"
@@ -75,6 +64,7 @@ import type { Task, TaskRequest } from '../types/task'
 interface Props {
   modelValue: boolean
   task?: Task | null
+  taskListId?: string
 }
 
 interface Emits {
@@ -85,6 +75,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   task: null,
+  taskListId: undefined,
 })
 
 const emit = defineEmits<Emits>()
@@ -92,27 +83,54 @@ const emit = defineEmits<Emits>()
 const taskStore = useTaskStore()
 const formRef = ref()
 
-const dialog = ref(props.modelValue)
+const dialog = ref(false)
 const taskForm = ref<TaskRequest>({
   title: '',
   description: '',
   completed: false,
+  taskListId: undefined,
 })
 
-const isEditing = computed(() => !!props.task)
+const isEditing = computed(() => {
+  return props.task !== null && props.task !== undefined && !!props.task.id
+})
 
 const rules = {
   required: (value: string) => !!value || 'Campo obrigatório',
 }
 
-watch(() => props.modelValue, (newValue) => {
-  if (dialog.value !== newValue) {
-    dialog.value = newValue
+// Helper para obter taskListId válido
+function getValidTaskListId(): string | undefined {
+  if (props.taskListId && props.taskListId !== 'undefined' && props.taskListId !== 'null') {
+    return props.taskListId
   }
-  if (newValue) {
-    loadTaskData()
+  if (props.task?.taskListId) {
+    return props.task.taskListId
   }
-})
+  return undefined
+}
+
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (dialog.value !== newValue) {
+      dialog.value = newValue
+    }
+    if (newValue) {
+      loadTaskData()
+    }
+  },
+)
+
+watch(
+  () => props.taskListId,
+  () => {
+    if (dialog.value && !isEditing.value) {
+      // Se o dialog estiver aberto e não estiver editando, atualiza o taskListId
+      taskForm.value.taskListId = getValidTaskListId()
+    }
+  },
+)
 
 watch(dialog, (newValue) => {
   if (props.modelValue !== newValue) {
@@ -130,6 +148,7 @@ function loadTaskData() {
       title: props.task.title,
       description: props.task.description || '',
       completed: props.task.completed,
+      taskListId: getValidTaskListId(),
     }
   } else {
     resetForm()
@@ -141,6 +160,7 @@ function resetForm() {
     title: '',
     description: '',
     completed: false,
+    taskListId: getValidTaskListId(),
   }
 }
 
@@ -153,8 +173,15 @@ async function saveTask() {
     return
   }
 
+  // Garantir que taskListId está definido
+  const taskListId = getValidTaskListId()
+  if (!isEditing.value && taskListId) {
+    taskForm.value.taskListId = taskListId
+  }
+
   try {
-    if (isEditing.value && props.task) {
+    // Se tem id, é edição (PUT), senão é criação (POST)
+    if (isEditing.value && props.task?.id) {
       await taskStore.update(props.task.id, taskForm.value)
     } else {
       await taskStore.create(taskForm.value)
@@ -166,4 +193,3 @@ async function saveTask() {
   }
 }
 </script>
-

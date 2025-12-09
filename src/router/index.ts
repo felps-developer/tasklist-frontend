@@ -6,7 +6,9 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/tasks',
+      name: 'task-lists',
+      component: () => import('../views/TaskListsView.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/login',
@@ -21,7 +23,7 @@ const router = createRouter({
       meta: { requiresGuest: true },
     },
     {
-      path: '/tasks',
+      path: '/tasks/:id',
       name: 'tasks',
       component: () => import('../views/TasksView.vue'),
       meta: { requiresAuth: true },
@@ -40,7 +42,7 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login' })
   } else if (requiresGuest && authStore.isAuthenticated) {
-    next({ name: 'tasks' })
+    next({ name: 'task-lists' })
   } else {
     next()
   }

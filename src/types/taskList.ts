@@ -1,18 +1,12 @@
-export interface Task {
+export interface TaskList {
   id: string
-  title: string
-  description?: string
-  completed: boolean
-  taskListId?: string
+  name: string
   createdAt: string | Date
   updatedAt: string | Date
 }
 
-export interface TaskRequest {
-  title: string
-  description?: string
-  completed?: boolean
-  taskListId?: string
+export interface TaskListRequest {
+  name: string
 }
 
 export interface PageResponse<T> {

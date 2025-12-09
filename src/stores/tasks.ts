@@ -1,18 +1,35 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { taskService } from '../services/taskService'
-import type { Task, TaskRequest } from '../types/task'
+import type { Task, TaskRequest, PageResponse } from '../types/task'
 
 export const useTaskStore = defineStore('tasks', () => {
   const tasks = ref<Task[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const pagination = ref<PageResponse<Task> | null>(null)
 
-  async function fetchAll() {
+  async function fetchAll(page: number = 0, size: number = 10, taskListId?: string, title?: string) {
     loading.value = true
     error.value = null
     try {
-      tasks.value = await taskService.getAll()
+      const pageResponse = await taskService.getAll(page, size, taskListId, title)
+      tasks.value = pageResponse.content
+      pagination.value = pageResponse
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Erro ao carregar tarefas'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchAllWithoutPagination(taskListId?: string, title?: string) {
+    loading.value = true
+    error.value = null
+    try {
+      tasks.value = await taskService.getAllWithoutPagination(taskListId, title)
+      pagination.value = null
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Erro ao carregar tarefas'
       throw err
@@ -90,7 +107,9 @@ export const useTaskStore = defineStore('tasks', () => {
     tasks,
     loading,
     error,
+    pagination,
     fetchAll,
+    fetchAllWithoutPagination,
     fetchById,
     create,
     update,
