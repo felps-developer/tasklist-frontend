@@ -3,18 +3,17 @@
     <v-row>
       <v-col cols="12" md="10" lg="8" xl="6" class="mx-auto">
         <v-card>
-          <TasksHeader title="Minhas Listas de Tarefas" :user-name="authStore.user?.name" @logout="handleLogout" />
+          <TasksHeader
+            title="Minhas Listas de Tarefas"
+            :user-name="authStore.user?.name"
+            @logout="handleLogout"
+          />
           <v-card-text class="pa-4">
-            <v-btn
-              color="primary"
-              prepend-icon="mdi-plus"
-              @click="openListDialog"
-              class="mb-4"
-              block
-              size="large"
-            >
-              Nova Lista
-            </v-btn>
+            <div class="d-flex justify-end mb-4">
+              <v-btn color="primary" prepend-icon="mdi-plus" @click="openListDialog" size="large">
+                Nova Lista
+              </v-btn>
+            </div>
 
             <v-text-field
               v-model="searchName"
@@ -44,7 +43,10 @@
               class="mb-4"
             />
 
-            <v-list v-if="!taskListStore.loading && taskListStore.taskLists.length > 0" class="pa-0">
+            <v-list
+              v-if="!taskListStore.loading && taskListStore.taskLists.length > 0"
+              class="pa-0"
+            >
               <v-list-item
                 v-for="list in taskListStore.taskLists"
                 :key="list.id"
@@ -82,13 +84,23 @@
               </v-list-item>
             </v-list>
 
-            <v-alert v-if="!taskListStore.loading && taskListStore.taskLists.length === 0" type="info">
+            <v-alert
+              v-if="!taskListStore.loading && taskListStore.taskLists.length === 0"
+              type="info"
+            >
               <span v-if="searchName">Nenhuma lista encontrada com o nome "{{ searchName }}".</span>
               <span v-else>Nenhuma lista cadastrada. Clique em "Nova Lista" para começar.</span>
             </v-alert>
 
             <!-- Paginação -->
-            <div v-if="taskListStore.pagination && taskListStore.pagination.totalPages > 1 && !taskListStore.loading" class="d-flex justify-center mt-4">
+            <div
+              v-if="
+                taskListStore.pagination &&
+                taskListStore.pagination.totalPages > 1 &&
+                !taskListStore.loading
+              "
+              class="d-flex justify-center mt-4"
+            >
               <v-pagination
                 v-model="currentPage"
                 :length="taskListStore.pagination.totalPages"
@@ -125,9 +137,9 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useTaskListStore } from '../stores/taskLists'
-import TasksHeader from '../components/TasksHeader.vue'
-import TaskListRegisterDialog from '../components/TaskListRegisterDialog.vue'
-import DeleteTaskListDialog from '../components/DeleteTaskListDialog.vue'
+import TasksHeader from '@/components/TasksHeader.vue'
+import TaskListRegisterDialog from '@/components/TaskListRegisterDialog.vue'
+import DeleteTaskListDialog from '@/components/DeleteTaskListDialog.vue'
 import type { TaskList } from '../types/taskList'
 
 const router = useRouter()
@@ -227,4 +239,3 @@ function formatDate(date: string | Date): string {
   })
 }
 </script>
-

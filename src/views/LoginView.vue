@@ -95,7 +95,7 @@ async function handleLogin() {
       email: email.value,
       password: password.value,
     })
-    router.push('/tasks')
+    router.push('/')
   } catch (err: any) {
     error.value = err.message || 'Erro ao fazer login'
   } finally {

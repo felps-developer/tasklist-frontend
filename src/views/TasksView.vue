@@ -17,7 +17,7 @@
                 variant="outlined"
                 size="large"
               >
-                Voltar para Listas
+                Voltar
               </v-btn>
               <v-btn color="primary" prepend-icon="mdi-plus" @click="openTaskDialog" size="large">
                 Nova Tarefa

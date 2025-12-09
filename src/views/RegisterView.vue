@@ -114,7 +114,7 @@ async function handleRegister() {
       email: email.value,
       password: password.value,
     })
-    router.push('/tasks')
+    router.push('/')
   } catch (error) {
     console.error(error)
   } finally {
