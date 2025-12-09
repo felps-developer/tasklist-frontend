@@ -135,6 +135,7 @@ API (Backend Communication)
   - Suporte nativo a ES modules
   - Execução rápida
   - Integração com Vite
+  - **Testes implementados**: Stores, Services e Componentes
 - **Vue Test Utils 2.4.6**: Utilitários para testes de componentes Vue
   - Mounting e rendering de componentes
   - Simulação de interações do usuário
@@ -194,16 +195,6 @@ cd tasklist-frontend
 npm install
 ```
 
-### Configuração
-
-1. Configure a URL da API no arquivo `.env` (crie se não existir):
-
-```env
-VITE_API_BASE_URL=http://localhost:8080/api/v1
-```
-
-**Nota**: O arquivo `.env` não deve ser commitado. Use `.env.example` como referência.
-
 ### Executando a Aplicação
 
 #### Modo Desenvolvimento
@@ -244,20 +235,15 @@ npm run preview
 
 Testa localmente a build de produção antes de fazer deploy.
 
-### Variáveis de Ambiente
+### Configuração da URL da API
 
-Crie um arquivo `.env` na raiz do projeto:
+A URL da API está configurada com valor padrão `http://localhost:8080/api/v1` no arquivo `src/services/api.ts`.
+
+Se necessário alterar, edite diretamente o arquivo ou crie um arquivo `.env` na raiz do projeto:
 
 ```env
-# URL base da API backend
 VITE_API_BASE_URL=http://localhost:8080/api/v1
 ```
-
-**Variáveis disponíveis:**
-
-- `VITE_API_BASE_URL`: URL base da API (padrão: `http://localhost:8080/api/v1`)
-
-**Nota**: Variáveis de ambiente devem começar com `VITE_` para serem expostas ao código do frontend.
 
 ### Troubleshooting
 
@@ -283,59 +269,34 @@ npm run dev -- --port 3000
 
 ## Como Rodar os Testes
 
-### Todos os Testes
+**Nota**: A suíte de testes ainda não foi implementada. O projeto está configurado para testes com Vitest.
+
+### Comandos Disponíveis
+
+```bash
+# Verificação de tipos TypeScript
+npm run type-check
+
+# Linting (verifica e corrige problemas no código)
+npm run lint
+
+# Formatação de código
+npm run format
+```
+
+### Configuração para Testes Futuros
+
+O projeto está preparado para testes com:
+
+- **Vitest**: Framework de testes configurado
+- **Vue Test Utils**: Utilitários para testes de componentes
+- **jsdom**: Ambiente DOM para testes
+
+Quando os testes forem implementados, use:
 
 ```bash
 npm run test:unit
 ```
-
-### Testes em Modo Watch
-
-```bash
-npm run test:unit -- --watch
-```
-
-Executa testes em modo watch, reexecutando quando arquivos são modificados.
-
-### Testes com Cobertura
-
-```bash
-npm run test:unit -- --coverage
-```
-
-Gera relatório de cobertura de código.
-
-### Executar Testes Específicos
-
-```bash
-npm run test:unit -- HelloWorld.spec.ts
-```
-
-Executa apenas um arquivo de teste específico.
-
-### Verificação de Tipos
-
-```bash
-npm run type-check
-```
-
-Verifica erros de tipo TypeScript sem executar a aplicação.
-
-### Linting
-
-```bash
-npm run lint
-```
-
-Executa o ESLint para verificar problemas no código e corrigir automaticamente quando possível.
-
-### Formatação
-
-```bash
-npm run format
-```
-
-Formata o código usando Prettier.
 
 ## Estrutura de Pastas Detalhada
 
@@ -391,7 +352,6 @@ tasklist-frontend/
 │   │   └── AboutView.vue            # Página sobre
 │   ├── App.vue                      # Componente raiz da aplicação
 │   └── main.ts                      # Ponto de entrada da aplicação
-├── .env.example                     # Exemplo de variáveis de ambiente
 ├── env.d.ts                         # Definições de tipos para variáveis de ambiente
 ├── index.html                       # HTML principal
 ├── package.json                     # Dependências e scripts
@@ -566,6 +526,8 @@ tasklist-frontend/
 
 **Alternativa Considerada**: Jest foi descartado por ser mais lento e requerer mais configuração para ES modules.
 
+**Nota**: Vitest está configurado e os testes estão implementados para stores, services e componentes principais.
+
 ### 7. TypeScript vs JavaScript
 
 **Escolha**: TypeScript
@@ -653,10 +615,10 @@ tasklist-frontend/
    - Chamada automática ao endpoint de refresh
    - Atualização transparente do token
 
-2. **Testes Unitários Completos**: Expandir cobertura de testes
-   - Testes para todos os componentes
-   - Testes para stores
-   - Testes para services
+2. **Expandir Testes Unitários**: Aumentar cobertura de testes
+   - Testes para todos os componentes restantes
+   - Testes para views
+   - Testes de integração
    - Cobertura mínima de 80%
 
 3. **Loading States**: Melhorar feedback visual de carregamento
@@ -786,11 +748,11 @@ tasklist-frontend/
 - `npm run build-only` - Build sem type-check
 - `npm run preview` - Preview da build de produção
 
-### Testes
+### Qualidade de Código
 
-- `npm run test:unit` - Executa testes unitários
-- `npm run test:unit -- --watch` - Testes em modo watch
-- `npm run test:unit -- --coverage` - Testes com cobertura
+- `npm run type-check` - Verifica tipos TypeScript
+- `npm run lint` - Executa ESLint e corrige automaticamente
+- `npm run format` - Formata código com Prettier
 
 ### Qualidade de Código
 
